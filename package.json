@@ -1,0 +1,44 @@
+{
+  "name": "typed-api-call",
+  "version": "0.1.0",
+  "description": "Effortlessly construct dynamic text by seamlessly integrating variables into your phrases",
+  "main": "dist/index.js",
+  "typings": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "rm -rf dist && node build.js && tsc",
+    "test:watch": "vitest",
+    "test": "vitest run",
+    "up": "yarn upgrade-interactive --latest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/simonboisset/typed-api-call"
+  },
+  "bugs": {
+    "url": "https://github.com/simonboisset/typed-api-call/issues"
+  },
+  "homepage": "https://github.com/simonboisset/typed-api-call",
+  "author": "Simon Boisset <simon@lezo.dev>",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^20.5.0",
+    "@types/prettier": "^3.0.0",
+    "esbuild": "^0.19.2",
+    "esbuild-node-externals": "^1.8.0",
+    "prettier": "^3.0.2",
+    "typescript": "^5.1.6",
+    "vitest": "^1.2.1",
+    "zod": "^3.22.4"
+  },
+  "prettier": {
+    "singleQuote": true,
+    "tabWidth": 2,
+    "printWidth": 120
+  },
+  "dependencies": {
+    "phrase-builder": "^0.1.0"
+  }
+}
