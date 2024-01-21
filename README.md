@@ -1,6 +1,6 @@
 # typed-api-call
 
-Typesafe api call generator. Make your external api cal safer and easier
+Typesafe api call generator. Make your external api call safer and easier
 
 ## Installation
 
