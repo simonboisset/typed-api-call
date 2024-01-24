@@ -8,6 +8,7 @@ type FetchFactoryParams<T, In, Out, P extends Record<string, string>> = {
   input?: ZodType<any, any, In>;
   response: ZodType<Out, any, any>;
   params?: ZodType<P>;
+  onError?: (error: any, url: string) => void;
 };
 
 type CreateApiCallParams<T> = {
@@ -24,6 +25,7 @@ export const createApiCall =
     params: paramsSchema,
     response: responseSchema,
     input: inputSchema,
+    onError,
   }: FetchFactoryParams<T, In, Out, P>) =>
   async ({
     data,
@@ -34,34 +36,41 @@ export const createApiCall =
     data: In extends Object ? In : undefined;
     params: P extends undefined ? undefined : P;
   }) => {
-    const validatedInputs = inputSchema?.parse(data);
-    const safeParams = paramsSchema?.parse(params);
-    const headerParams = (
-      headersOverrideBeforeCall && headersOverride
-        ? { ...headersOverrideBeforeCall, ...headersOverride }
-        : headersOverrideBeforeCall || headersOverride
-    ) as T;
-    const headers = getHeaders(headerParams);
-    const fullUrl = buildPhrase(`${prefixUrl}${url}`, safeParams);
-    const urlWithSearch = new URL(fullUrl);
-    if (method === 'GET') {
-      Object.entries(validatedInputs || {}).forEach(([key, value]) => {
-        urlWithSearch.searchParams.append(key, value as string);
-      });
-    }
+    try {
+      const validatedInputs = inputSchema?.parse(data);
+      const safeParams = paramsSchema?.parse(params);
+      const headerParams = (
+        headersOverrideBeforeCall && headersOverride
+          ? { ...headersOverrideBeforeCall, ...headersOverride }
+          : headersOverrideBeforeCall || headersOverride
+      ) as T;
+      const headers = getHeaders(headerParams);
+      const fullUrl = buildPhrase(`${prefixUrl}${url}`, safeParams);
+      const urlWithSearch = new URL(fullUrl);
+      if (method === 'GET') {
+        Object.entries(validatedInputs || {}).forEach(([key, value]) => {
+          urlWithSearch.searchParams.append(key, value as string);
+        });
+      }
 
-    const response = await fetch(urlWithSearch.toString(), {
-      method,
-      headers,
-      body: method === 'GET' ? undefined : validatedInputs ? JSON.stringify(validatedInputs) : undefined,
-    });
-    if (response.status >= 400) {
-      const error = await response.json();
+      const response = await fetch(urlWithSearch.toString(), {
+        method,
+        headers,
+        body: method === 'GET' ? undefined : validatedInputs ? JSON.stringify(validatedInputs) : undefined,
+      });
+      if (response.status >= 400) {
+        const error = await response.json();
+        throw error;
+      }
+      const body = await response.json();
+
+      const result = responseSchema.parse(body);
+
+      return result;
+    } catch (error) {
+      if (onError) {
+        throw onError(error, url);
+      }
       throw error;
     }
-    const body = await response.json();
-
-    const result = responseSchema.parse(body);
-
-    return result;
   };
