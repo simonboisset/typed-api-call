@@ -14,10 +14,11 @@ type FetchFactoryParams<T, In, Out, P extends Record<string, string>> = {
 type CreateApiCallParams<T> = {
   url: string;
   getHeaders: (args: T) => Headers;
+  onError?: (error: any, url: string) => void;
 };
 
 export const createApiCall =
-  <T>({ url: prefixUrl, getHeaders }: CreateApiCallParams<T>) =>
+  <T>({ url: prefixUrl, getHeaders, onError: onErrorRoot }: CreateApiCallParams<T>) =>
   <In, Out, P extends Record<string, string>>({
     method,
     url,
@@ -70,6 +71,9 @@ export const createApiCall =
     } catch (error) {
       if (onError) {
         throw onError(error, url);
+      }
+      if (onErrorRoot) {
+        throw onErrorRoot(error, url);
       }
       throw error;
     }

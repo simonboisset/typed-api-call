@@ -134,3 +134,26 @@ const users = await getusers({
 - `params`: The parameters of your api call if you use `${paramName}` in the url
 - `data`: The data you send to your api call
 - `headers`: The headers of your api call if you need to override the default headers
+
+## On error handling
+
+If the response of your api call doesn't match the schema, an error will be thrown. You can catch it by passing an `onError` function to your api call.
+
+```typescript
+const getusers = myApiCall({
+  url: 'users',
+  method: 'GET',
+  input: z.object({ email: z.array(z.string().email()) }),
+  response: z.object({ data: z.array(userSchema) }),
+  onError: (error, url) => {
+    // error is the error thrown by zod or by the fetch api
+    // url is the url of the api call
+  },
+});
+```
+
+You can also set a global `onError` function when you create your api call.
+
+```typescript
+const myApiCall = createApiCall({ url: 'https://my-api.com/', getHeaders, onError });
+```
