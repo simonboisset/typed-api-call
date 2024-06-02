@@ -1,4 +1,4 @@
-import { buildPhrase } from 'phrase-builder';
+import { buildDollarBracePhrase } from 'phrase-builder';
 import type { ZodType } from 'zod';
 
 type FetchFactoryParams<T, In, Out, P extends Record<string, string>> = {
@@ -46,7 +46,7 @@ export const createApiCall =
           : headersOverrideBeforeCall || headersOverride
       ) as T;
       const headers = getHeaders(headerParams);
-      const fullUrl = buildPhrase(`${prefixUrl}${url}`, safeParams);
+      const fullUrl = buildDollarBracePhrase(`${prefixUrl}${url}`, safeParams);
       const urlWithSearch = new URL(fullUrl);
       if (method === 'GET') {
         Object.entries(validatedInputs || {}).forEach(([key, value]) => {
